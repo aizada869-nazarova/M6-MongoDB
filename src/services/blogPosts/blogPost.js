@@ -9,7 +9,7 @@ blogPostRouter.post("/", async (req, res, next) => {
     const newBlog = new blogPostModel(req.body) 
     const { _id } = await newBlog.save() 
 
-    res.send({ _id })
+    res.status(201).send({ _id })
   } catch (error) {
     next(error)
   }
@@ -32,7 +32,7 @@ blogPostRouter.get("/:blogId", async (req, res, next) => {
     if (blog) {
       res.send(blog)
     } else {
-      next(error)
+      next(createHttpError(404, `blog with id ${blogId} not found!`))
     }
   } catch (error) {
     next(error)
@@ -46,7 +46,7 @@ blogPostRouter.put("/:blogId", async (req, res, next) => {
     if (updatedblog) {
       res.send(updatedblog)
     } else {
-      next(error)
+      next(createHttpError(404, `blog with id ${blogId} not found!`))
     }
   } catch (error) {
     next(error)
@@ -58,9 +58,9 @@ blogPostRouter.delete("/:blogId", async (req, res, next) => {
     const blogId = req.params.blogId
     const deletedblog = await blogPostModel.findByIdAndDelete(blogId)
     if (deletedblog) {
-      res.send()
+      res.status(204).send()
     } else {
-      next(error)
+      next(createHttpError(404, `blog with id ${blogId} not found!`))
     }
   } catch (error) {
     next(error)

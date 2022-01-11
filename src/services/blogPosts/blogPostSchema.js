@@ -8,12 +8,12 @@ const blogPostSchema = new Schema(
     title: { type: String, required: true },
     cover: { type: String, required: true },
     readTime: {
-        value: {Number, required: true},
-        unit:{ String, required: true}, 
+        value: {Number},
+        unit:{ String}, 
       },
       author: {
-        name: { type: String, required: true },
-        avatar:{ type: String, required: true },
+        name: { String },
+        avatar:{ String },
       },
       content: { type: String, required: true },
 
