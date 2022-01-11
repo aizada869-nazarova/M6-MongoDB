@@ -1,0 +1,32 @@
+{
+  "name": "m6-mongodb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon -r dotenv/config ./src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aizada869-nazarova/M6-MongoDB.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aizada869-nazarova/M6-MongoDB/issues"
+  },
+  "homepage": "https://github.com/aizada869-nazarova/M6-MongoDB#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "express-list-endpoints": "^6.0.0",
+    "mongoose": "^6.1.6"
+  },
+  "devDependencies": {
+    "dotenv": "^11.0.0",
+    "nodemon": "^2.0.15"
+  }
+}
