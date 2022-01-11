@@ -2,6 +2,7 @@ import express from "express"
 import listEndpoints from "express-list-endpoints"
 import cors from "cors"
 import mongoose from "mongoose"
+import blogPostRouter from "./services/blogPosts/blogPost.js"
 
 
 const server = express()
@@ -14,7 +15,7 @@ server.use(cors())
 server.use(express.json())
 
 // ******************************** ROUTES *****************************************
-
+server.use("/blogs", blogPostRouter)
 
 
 // ******************************** ERROR HANDLERS *********************************
