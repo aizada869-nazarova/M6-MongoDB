@@ -75,7 +75,7 @@ blogPostRouter.post("/:blogId", async (req, res, next)=>{
     res.send(newComments)
   if (newComments) {
    
-    const commentToInsert = { ...newComments} 
+    const commentToInsert = { ...newComments.toObject()} 
     console.log(commentToInsert)
 
     const modifiedBlog = await blogPostModel.findByIdAndUpdate(
@@ -99,6 +99,7 @@ blogPostRouter.post("/:blogId", async (req, res, next)=>{
 
 blogPostRouter.get("/:blogId/comments", async (req, res, next) => {
   try {
+    console.log(req.params.blogId)
     const blog = await blogPostModel.findById(req.params.blogId)
     if (blog) {
       res.send(blog.comments)
