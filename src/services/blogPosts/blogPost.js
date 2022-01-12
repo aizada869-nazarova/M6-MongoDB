@@ -72,7 +72,7 @@ blogPostRouter.delete("/:blogId", async (req, res, next) => {
 blogPostRouter.post("/:blogId", async (req, res, next)=>{
   try {  const newComments = await new commentsModel(req.body) 
     const { _id } = await newComments.save()
-    res.send(newComments)
+    // res.send(newComments)
   if (newComments) {
    
     const commentToInsert = { ...newComments.toObject()} 
