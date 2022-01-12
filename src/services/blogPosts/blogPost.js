@@ -70,11 +70,12 @@ blogPostRouter.delete("/:blogId", async (req, res, next) => {
 
 
 blogPostRouter.post("/:blogId", async (req, res, next)=>{
-  try {  const comments = await commentsModel.findById(req.body.blogId, { _id: 0 }) 
-  console.log(req.body.blogId)
-  if (comments) {
+  try {  const newComments = await new commentsModel(req.body) 
+    const { _id } = await newComments.save()
+    res.send(newComments)
+  if (newComments) {
    
-    const commentToInsert = { ...comments.toObject() } 
+    const commentToInsert = { ...newComments} 
     console.log(commentToInsert)
 
     const modifiedBlog = await blogPostModel.findByIdAndUpdate(
