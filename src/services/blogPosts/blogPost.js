@@ -1,6 +1,7 @@
 import express from "express"
 import createHttpError from "http-errors"
 import blogPostModel from "./blogPostSchema.js"
+import commentsModel from "./commentSchema.js"
 
 const blogPostRouter = express.Router()
 
@@ -67,4 +68,102 @@ blogPostRouter.delete("/:blogId", async (req, res, next) => {
   }
 })
 
+
+blogPostRouter.post("/:blogId", async (req, res, next)=>{
+  try {  const comments = await commentsModel.findById(req.body.blogId, { _id: 0 }) 
+  console.log(req.body.blogId)
+  if (comments) {
+   
+    const commentToInsert = { ...comments.toObject() } 
+    console.log(commentToInsert)
+
+    const modifiedBlog = await blogPostModel.findByIdAndUpdate(
+      req.params.blogId,
+      { $push: { comments: commentToInsert } }, 
+      { new: true } 
+    )
+    if (modifiedBlog) {
+      res.send(modifiedBlog)
+    } else {
+      next(createHttpError(404, `blog with id ${req.params.blogId} not found!`))
+    }
+  } else {
+    next(createHttpError(404, `Blog with id ${req.body.blogId} not found!`))
+  }
+  } catch (error) {
+    next(error)
+    
+  }
+})
+
+blogPostRouter.get("/:blogId/comments", async (req, res, next) => {
+  try {
+    const blog = await blogPostModel.findById(req.params.blogId)
+    if (blog) {
+      res.send(blog.comments)
+    } else {
+      next(createHttpError(404, `blog with id ${req.params.blogId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+blogPostRouter.get("/:blogId/comments/:commentId", async (req, res, next) => {
+  try {
+    const blog = await blogPostModel.findById(req.params.blogId)
+    if (blog) {
+      const purchasedItem = blog.comments.find(book => book._id.toString() === req.params.commentId) // You CANNOT compare an ObjectId (book._id) with a string (req.params.commentId) --> book._id needs to be converted into a string
+      if (purchasedItem) {
+        res.send(purchasedItem)
+      } else {
+        next(createHttpError(404, `Book with id ${req.params.commentId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `blog with id ${req.params.blogId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+blogPostRouter.put("/:blogId/comments/:commentId", async (req, res, next) => {
+  try {
+    const blog = await blogPostModel.findById(req.params.blogId)
+    if (blog) {
+      const index = blog.comments.findIndex(book => book._id.toString() === req.params.commentId)
+
+      if (index !== -1) {
+       
+        blog.comments[index] = { ...blog.comments[index].toObject(), ...req.body } 
+        await blog.save() 
+        res.send(blog)
+      } else {
+        next(createHttpError(404, `comment with id ${req.params.commentId} not found!`))
+      }
+    } else {
+      next(createHttpError(404, `blog with id ${req.params.blogId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+blogPostRouter.delete("/:blogId/comments/:commentId", async (req, res, next) => {
+  try {
+    const modifiedblog = await blogPostModel.findByIdAndUpdate(
+      req.params.blogId, 
+      { $pull: { comments: { _id: req.params.commentId } } }, 
+      { new: true } 
+    )
+
+    if (modifiedblog) {
+      res.send(modifiedblog)
+    } else {
+      next(createHttpError(404, `blog with id ${req.params.blogId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 export default blogPostRouter
