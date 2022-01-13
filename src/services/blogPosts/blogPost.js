@@ -2,6 +2,7 @@ import express from "express"
 import createHttpError from "http-errors"
 import blogPostModel from "./blogPostSchema.js"
 import commentsModel from "./commentSchema.js"
+import q2m from "query-to-mongo"
 
 const blogPostRouter = express.Router()
 
@@ -17,9 +18,18 @@ blogPostRouter.post("/", async (req, res, next) => {
 })
 
 blogPostRouter.get("/", async (req, res, next) => {
-  try {
-    const blogs = await blogPostModel.find()
-    res.send(blogs)
+  try { 
+    const mongoQuery = q2m(req.query)
+  //   const { total, blogs } = await blogPostModel.findBlogsWithAuthors(mongoQuery)
+  //   res.send({ links: mongoQuery.links("/blogs", total), pageTotal: Math.ceil(total / mongoQuery.options.limit), total, blogs })
+  const blogId = req.params.blogId
+
+  const blog = await blogPostModel.find(blogId).populate({ path: "authors", select: "name avatar" })
+  if (blog) {
+    res.send(blog)
+  } else {
+    next(createHttpError(404, `blog with id ${blogId} not found!`))
+  }
   } catch (error) {
     next(error)
   }
@@ -29,7 +39,7 @@ blogPostRouter.get("/:blogId", async (req, res, next) => {
   try {
     const blogId = req.params.blogId
 
-    const blog = await blogPostModel.findById(blogId)
+    const blog = await blogPostModel.findById(blogId).populate({ path: "authors", select: "name avatar" })
     if (blog) {
       res.send(blog)
     } else {
@@ -43,7 +53,7 @@ blogPostRouter.get("/:blogId", async (req, res, next) => {
 blogPostRouter.put("/:blogId", async (req, res, next) => {
   try {
     const blogId = req.params.blogId
-    const updatedblog = await blogPostModel.findByIdAndUpdate(blogId, req.body, { new: true }) // by default findByIdAndUpdate returns the document pre-update, if I want to retrieve the updated document, I should use new:true as an option
+    const updatedblog = await blogPostModel.findByIdAndUpdate(blogId, req.body, { new: true })
     if (updatedblog) {
       res.send(updatedblog)
     } else {
@@ -72,7 +82,7 @@ blogPostRouter.delete("/:blogId", async (req, res, next) => {
 blogPostRouter.post("/:blogId", async (req, res, next)=>{
   try {  const newComments = await new commentsModel(req.body) 
     const { _id } = await newComments.save()
-    // res.send(newComments)
+   
   if (newComments) {
    
     const commentToInsert = { ...newComments.toObject()} 
